@@ -1,5 +1,5 @@
 {
-  "name": "AuditAI - 矛盾检测与案件审核系统",
-  "description": "专业的法律卷宗审核系统，利用Gemini 1.5/3.0的大窗口能力对海量案卷进行矛盾检测、时序分析与合规性审查。",
+  "name": "卷宗分析系统",
+  "description": "专业的法律卷宗审核系统，支持Word/PDF文档分析，利用大模型能力对海量案卷进行矛盾检测、时序分析与合规性审查。",
   "requestFramePermissions": []
 }

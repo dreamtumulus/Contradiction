@@ -1,13 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import { AppSettings, DEFAULT_SYSTEM_INSTRUCTION, AIProvider } from '../types';
 
 interface SettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  settings: AppSettings;
-  onSave: (settings: AppSettings) => void;
+  isOpen: boolean;                  // 模态框是否打开
+  onClose: () => void;              // 关闭回调
+  settings: AppSettings;            // 当前设置
+  onSave: (settings: AppSettings) => void; // 保存回调
 }
 
+// 预定义的 Google 模型列表
 const GOOGLE_MODELS = [
   { id: 'gemini-3-pro-preview', name: 'Gemini 3.0 Pro (推荐 - 2M上下文)' },
   { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash (快速)' },
@@ -15,21 +17,25 @@ const GOOGLE_MODELS = [
 ];
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSave }) => {
+  // 本地状态缓存，避免在编辑时直接修改全局状态
   const [localSettings, setLocalSettings] = useState<AppSettings>(settings);
 
+  // 当外部设置变更或模态框打开时，重置本地状态
   useEffect(() => {
     setLocalSettings(settings);
   }, [settings, isOpen]);
 
+  // 切换服务提供商时的逻辑
   const handleProviderChange = (provider: AIProvider) => {
     let defaultBaseUrl = '';
     let defaultModel = '';
 
+    // 为不同提供商设置默认值
     if (provider === 'openrouter') {
       defaultBaseUrl = 'https://openrouter.ai/api/v1';
       defaultModel = 'anthropic/claude-3-opus';
     } else if (provider === 'local') {
-      defaultBaseUrl = 'http://localhost:11434/v1';
+      defaultBaseUrl = 'http://localhost:11434/v1'; // Ollama 默认地址
       defaultModel = 'qwen2.5:14b';
     } else {
       defaultModel = 'gemini-3-pro-preview';
@@ -40,7 +46,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
       provider,
       baseUrl: defaultBaseUrl,
       model: defaultModel,
-      apiKey: provider === 'local' ? 'sk-dummy' : prev.apiKey // Keep key for others, set dummy for local
+      // 如果切换到 Local 模式，设置一个虚拟 Key，否则保留原有 Key
+      apiKey: provider === 'local' ? 'sk-dummy' : prev.apiKey 
     }));
   };
 
@@ -49,6 +56,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-surface border border-secondary rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        {/* 标题栏 */}
         <div className="p-6 border-b border-secondary flex justify-between items-center bg-[#1E1F20]">
           <h2 className="text-xl font-semibold text-text">系统设置</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
@@ -58,7 +66,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
         
         <div className="p-6 overflow-y-auto space-y-8">
           
-          {/* Provider Selection */}
+          {/* 服务商选择 Tab */}
           <div className="space-y-4">
              <h3 className="text-sm font-medium text-primary uppercase tracking-wider">模型服务商</h3>
              <div className="grid grid-cols-3 gap-3">
@@ -95,7 +103,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
              </div>
           </div>
 
-          {/* Configuration Fields */}
+          {/* 动态配置表单 - 根据选择的 Provider 显示不同输入框 */}
           <div className="space-y-5 animate-fade-in">
             {localSettings.provider === 'google' && (
               <>
@@ -205,7 +213,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
 
           <div className="h-px bg-secondary w-full"></div>
 
-          {/* System Instruction */}
+          {/* 系统提示词 (System Prompt) 设置 */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium text-primary uppercase tracking-wider">审核规则 (System Prompt)</h3>
             <div>
@@ -227,6 +235,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
 
         </div>
 
+        {/* 底部按钮栏 */}
         <div className="p-6 border-t border-secondary bg-[#1E1F20] flex justify-end gap-3">
           <button 
             onClick={onClose}
